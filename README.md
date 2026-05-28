@@ -2,6 +2,8 @@
 
 Native macOS menu bar app + dashboard for tracking network bandwidth — per app, per destination, per network. Terminal-themed, fully local, no telemetry.
 
+**🌐 [1bitstudio.app/data](https://1bitstudio.app/data/)** · **⬇ [Download v0.1.0](https://github.com/feonder/1bit-data/releases/latest)**
+
 ![1 Bit Data](assets/icon.svg)
 
 ## Features
@@ -20,7 +22,7 @@ Native macOS menu bar app + dashboard for tracking network bandwidth — per app
 
 ## Install
 
-Download the latest `.dmg` from [Releases](https://github.com/feonder/1bit-data/releases/latest), open it, drag the app to Applications. First launch may ask permission to monitor network — grant it.
+Download from the [**official landing page**](https://1bitstudio.app/data/) or grab the latest `.dmg` directly from [GitHub Releases](https://github.com/feonder/1bit-data/releases/latest). Open the DMG, drag the app to Applications. First launch may ask permission to monitor network — grant it.
 
 The app is signed with a Developer ID and notarized by Apple, so Gatekeeper won't warn.
 
