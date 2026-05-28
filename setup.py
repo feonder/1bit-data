@@ -17,8 +17,8 @@ OPTIONS = {
         "CFBundleName": APP_NAME,
         "CFBundleDisplayName": APP_NAME,
         "CFBundleIdentifier": "com.1bitstudios.1bitdata",
-        "CFBundleVersion": "0.1.0",
-        "CFBundleShortVersionString": "0.1.0",
+        "CFBundleVersion": "0.1.1",
+        "CFBundleShortVersionString": "0.1.1",
         "CFBundleExecutable": APP_NAME,
         # Menu-bar only app (no Dock icon, no main window in App Switcher)
         "LSUIElement": True,

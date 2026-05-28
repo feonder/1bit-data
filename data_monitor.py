@@ -2,6 +2,7 @@
 """Menu bar app: live network speed, daily total, top apps, HTML reports, i18n."""
 import rumps
 import psutil
+import fcntl
 import json
 import os
 import sys
@@ -245,6 +246,20 @@ class DataMonitor(rumps.App):
         self._click_handler = None
         self._install_click_timer = rumps.Timer(self._install_click_override, 0.8)
         self._install_click_timer.start()
+
+        # Let the dashboard tell us when the user picks a new language so the
+        # menu-bar titles stay in sync without waiting for a window reopen.
+        dashboard.on_language_change = self._on_language_changed_external
+
+    def _on_language_changed_external(self, code):
+        if code == self.lang:
+            return
+        # i18n.set_lang was already called by the dashboard; just refresh
+        # menu state + titles (skip set_lang to avoid a redundant write).
+        self.lang = code
+        for c, item in self.lang_items.items():
+            item.state = (c == code)
+        self.refresh_titles()
 
     def _make_lang_setter(self, code):
         def cb(_):
@@ -522,5 +537,37 @@ class DataMonitor(rumps.App):
             print(f"enrich error: {e}", flush=True)
 
 
+LOCK_FILE = os.path.expanduser("~/.data_monitor.lock")
+
+
+def acquire_single_instance_lock():
+    """Acquire an exclusive flock on LOCK_FILE so that only one instance of
+    1 Bit Data runs at a time (whether launched from the .app bundle or via
+    the LaunchAgent / source script). Returns the open file handle if we
+    got the lock, or None if another instance already holds it.
+
+    The returned handle must be kept alive for the lifetime of the process
+    — closing it releases the lock. The OS releases the flock automatically
+    when the process exits, so no stale-lock cleanup is needed.
+    """
+    f = open(LOCK_FILE, "w")
+    try:
+        fcntl.flock(f.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except (BlockingIOError, OSError):
+        f.close()
+        return None
+    try:
+        f.write(str(os.getpid()))
+        f.flush()
+    except Exception:
+        pass
+    return f
+
+
 if __name__ == "__main__":
+    _instance_lock = acquire_single_instance_lock()
+    if _instance_lock is None:
+        print("1 Bit Data is already running; exiting this instance.",
+              flush=True)
+        sys.exit(0)
     DataMonitor().run()

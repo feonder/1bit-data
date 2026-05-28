@@ -20,6 +20,8 @@ from AppKit import (
     NSSearchField,
     NSAttributedString,
     NSForegroundColorAttributeName, NSFontAttributeName,
+    NSParagraphStyleAttributeName, NSMutableParagraphStyle,
+    NSTextAlignmentLeft,
     NSAppearance, NSAppearanceNameVibrantDark,
     NSMenu, NSMenuItem,
 )
@@ -259,8 +261,11 @@ class _TermPopup(NSView):
 
     @objc.python_method
     def _render_title(self):
+        ps = NSMutableParagraphStyle.alloc().init()
+        ps.setAlignment_(NSTextAlignmentLeft)
         attrs = {NSForegroundColorAttributeName: FG_AMBER(),
-                 NSFontAttributeName: _mono_font(12, bold=True)}
+                 NSFontAttributeName: _mono_font(12, bold=True),
+                 NSParagraphStyleAttributeName: ps}
         astr = NSAttributedString.alloc().initWithString_attributes_(
             f"[ {self._selected}  ▾ ]", attrs)
         self._button.setAttributedTitle_(astr)
@@ -458,6 +463,44 @@ class DashboardWindow(NSObject):
         content = self.window.contentView()
         _set_bg(content, BG())
 
+        self._build_content(active_tab=0)
+
+        self.window.makeKeyAndOrderFront_(None)
+        NSApp.activateIgnoringOtherApps_(True)
+
+    @objc.python_method
+    def _build_content(self, active_tab=0):
+        """Build tab bar + sections inside the window's contentView.
+
+        Safe to call repeatedly: removes any previous tab bar / divider /
+        content container first, then rebuilds with the current language.
+        """
+        content = self.window.contentView()
+
+        # Stop any running refresh timer; we'll restart at the end.
+        if getattr(self, "timer", None) is not None:
+            try:
+                self.timer.invalidate()
+            except Exception:
+                pass
+            self.timer = None
+
+        # Drop existing layout so we can rebuild fresh.
+        for attr in ("tab_bar", "_tab_divider", "content_container"):
+            v = getattr(self, attr, None)
+            if v is not None:
+                try:
+                    v.removeFromSuperview()
+                except Exception:
+                    pass
+                setattr(self, attr, None)
+
+        # Reset detail state and per-tab caches that hold view refs.
+        self._app_detail_current = None
+        self._dest_detail_current = None
+        self._app_buttons = []
+        self._dest_buttons = []
+
         # ----- Tab bar (top) -----
         tab_bar_h = 44
         self.tab_bar = NSView.alloc().initWithFrame_(
@@ -467,11 +510,11 @@ class DashboardWindow(NSObject):
         content.addSubview_(self.tab_bar)
 
         # Divider below tab bar
-        div = NSView.alloc().initWithFrame_(
+        self._tab_divider = NSView.alloc().initWithFrame_(
             NSMakeRect(0, WINDOW_H - tab_bar_h - 1, WINDOW_W, 1))
-        div.setAutoresizingMask_(2 | 8)
-        _set_bg(div, BORDER())
-        content.addSubview_(div)
+        self._tab_divider.setAutoresizingMask_(2 | 8)
+        _set_bg(self._tab_divider, BORDER())
+        content.addSubview_(self._tab_divider)
 
         tab_defs = [
             ("overview", t("dash.tab.overview"), self.tab_overview),
@@ -487,12 +530,15 @@ class DashboardWindow(NSObject):
         self.tab_sections = []
         self.tab_labels = [d[1] for d in tab_defs]
 
+        if not (0 <= active_tab < len(tab_defs)):
+            active_tab = 0
+
         btn_w = 120
         x = 8
         y_btn = (tab_bar_h - 30) // 2
         for idx, (ident, label, _builder) in enumerate(tab_defs):
             btn = _term_tab_button(label, self, b"tabClicked:",
-                                   active=(idx == 0), width=btn_w)
+                                   active=(idx == active_tab), width=btn_w)
             btn.setTag_(idx)
             btn.setFrame_(NSMakeRect(x, y_btn, btn_w, 30))
             self.tab_bar.addSubview_(btn)
@@ -515,18 +561,51 @@ class DashboardWindow(NSObject):
             sec = NSView.alloc().initWithFrame_(NSMakeRect(0, 0, sec_w, sec_h))
             sec.setAutoresizingMask_(2 | 16)
             _set_bg(sec, BG())
-            sec.setHidden_(idx != 0)
+            sec.setHidden_(idx != active_tab)
             builder(sec)
             self.content_container.addSubview_(sec)
             self.tab_sections.append(sec)
 
         self.refresh_data()
 
+        # If a speed test is still running from before the rebuild, restore the
+        # in-progress UI on the freshly-built widgets (button = "Stop" red,
+        # status = "Running…", values = "…"). The live tick timer and result
+        # handler will continue to write to these new labels.
+        if (getattr(self, "_speedtest_proc", None) is not None
+                and getattr(self, "st_button", None) is not None):
+            try:
+                attrs = {NSForegroundColorAttributeName: FG_RED(),
+                         NSFontAttributeName: _mono_font(12, bold=True)}
+                astr = NSAttributedString.alloc().initWithString_attributes_(
+                    f"[ {t('dash.speedtest.stop')} ]", attrs)
+                self.st_button.setAttributedTitle_(astr)
+                self.st_status.setStringValue_(t("dash.speedtest.running"))
+                self.st_dl_value.setStringValue_("…")
+                self.st_ul_value.setStringValue_("…")
+                self.st_rtt_value.setStringValue_("…")
+            except Exception as e:
+                print(f"speedtest state restore error: {e}", flush=True)
+
         self.timer = NSTimer.scheduledTimerWithTimeInterval_target_selector_userInfo_repeats_(
             2.0, self, b"tick:", None, True)
 
-        self.window.makeKeyAndOrderFront_(None)
-        NSApp.activateIgnoringOtherApps_(True)
+    @objc.python_method
+    def _current_tab_index(self):
+        for i, sec in enumerate(getattr(self, "tab_sections", []) or []):
+            try:
+                if not sec.isHidden():
+                    return i
+            except Exception:
+                pass
+        return 0
+
+    @objc.python_method
+    def reload_for_language(self):
+        """Rebuild the dashboard contents for the newly selected language,
+        keeping the user on the same tab (no flicker, no window churn)."""
+        active = self._current_tab_index()
+        self._build_content(active_tab=active)
 
     def tabClicked_(self, sender):
         idx = int(sender.tag())
@@ -693,9 +772,11 @@ class DashboardWindow(NSObject):
         view.addSubview_(lbl)
         self.apps_list_views.append(lbl)
 
-        self.app_period = _popup(_period_labels(), t("period.today"),
-                                 width=140, target=self,
-                                 action=b"appPeriodChanged:")
+        self.app_period = _popup(
+            _period_labels(),
+            t(PERIOD_KEY_MAP.get(self._app_period, "period.today")),
+            width=140, target=self,
+            action=b"appPeriodChanged:")
         self.app_period.setFrame_(NSMakeRect(80, h - 82, 140, 26))
         view.addSubview_(self.app_period)
         self.apps_list_views.append(self.app_period)
@@ -704,6 +785,11 @@ class DashboardWindow(NSObject):
         self.app_search = _TermSearch.alloc().initWithFrame_(
             NSMakeRect(240, h - 84, 280, 28))
         self.app_search.configure(t("dash.search.app"), self, b"appSearchChanged:")
+        if self._app_filter:
+            try:
+                self.app_search.setStringValue_(self._app_filter)
+            except Exception:
+                pass
         view.addSubview_(self.app_search)
         self.apps_list_views.append(self.app_search)
 
@@ -832,9 +918,11 @@ class DashboardWindow(NSObject):
         view.addSubview_(lbl)
         self.dest_list_views.append(lbl)
 
-        self.dest_period = _popup(_period_labels(), t("period.today"),
-                                  width=140, target=self,
-                                  action=b"destPeriodChanged:")
+        self.dest_period = _popup(
+            _period_labels(),
+            t(PERIOD_KEY_MAP.get(self._dest_period, "period.today")),
+            width=140, target=self,
+            action=b"destPeriodChanged:")
         self.dest_period.setFrame_(NSMakeRect(80, h - 82, 140, 26))
         view.addSubview_(self.dest_period)
         self.dest_list_views.append(self.dest_period)
@@ -843,6 +931,11 @@ class DashboardWindow(NSObject):
         self.dest_search = _TermSearch.alloc().initWithFrame_(
             NSMakeRect(240, h - 84, 280, 28))
         self.dest_search.configure(t("dash.search.dest"), self, b"destSearchChanged:")
+        if self._dest_filter:
+            try:
+                self.dest_search.setStringValue_(self._dest_filter)
+            except Exception:
+                pass
         view.addSubview_(self.dest_search)
         self.dest_list_views.append(self.dest_search)
 
@@ -1107,36 +1200,52 @@ class DashboardWindow(NSObject):
         title.setFrame_(NSMakeRect(20, h - 40, 500, 24))
         view.addSubview_(title)
 
-        # Language
-        lbl = _label(t("dash.settings.lang") + ":", size=13)
-        lbl.setFrame_(NSMakeRect(20, h - 84, 80, 20))
-        view.addSubview_(lbl)
+        # Two-column layout: label column at x=20 (width 140) + control column
+        # at x=170. Controls use their natural sizeToFit width so the leading
+        # "[" lines up at exactly CTRL_X for every row (NSButton's default
+        # center-alignment otherwise pushes wider controls to the right).
+        LBL_X = 20
+        LBL_W = 140
+        CTRL_X = 170
+        LBL_H = 20
+        CTRL_H = 26
+        ROW_GAP = 46
+        CTRL_DY = -4
 
+        def add_row(idx, label_key, ctrl):
+            lbl_y = h - 84 - idx * ROW_GAP
+            lbl = _label(t(label_key) + ":", size=13)
+            lbl.setFrame_(NSMakeRect(LBL_X, lbl_y, LBL_W, LBL_H))
+            view.addSubview_(lbl)
+            cw = ctrl.frame().size.width
+            ctrl.setFrame_(NSMakeRect(CTRL_X, lbl_y + CTRL_DY, cw, CTRL_H))
+            view.addSubview_(ctrl)
+            return lbl
+
+        # Language — popup is a fixed-width NSView; its inner button uses
+        # left-aligned paragraph style so the "[" lines up with the other rows.
         current_lang = i18n.get_lang()
         lang_titles = list(LANG_NAMES.values())
         current_title = LANG_NAMES.get(current_lang, "Türkçe")
         self.lang_popup = _popup(lang_titles, current_title, width=200,
                                  target=self, action=b"languageChanged:")
-        self.lang_popup.setFrame_(NSMakeRect(110, h - 88, 200, 26))
-        view.addSubview_(self.lang_popup)
+        add_row(0, "dash.settings.lang", self.lang_popup)
 
-        # Reset
-        lbl2 = _label(t("dash.settings.daily_counter") + ":", size=13)
-        lbl2.setFrame_(NSMakeRect(20, h - 130, 130, 20))
-        view.addSubview_(lbl2)
-
-        btn = _button(t("dash.settings.reset_button"), self, b"resetToday:", width=120)
-        btn.setFrame_(NSMakeRect(160, h - 134, 120, 26))
-        view.addSubview_(btn)
+        # Reset — no explicit width → sizeToFit, button hugs the text exactly.
+        reset_btn = _button(t("dash.settings.reset_button"), self, b"resetToday:")
+        add_row(1, "dash.settings.daily_counter", reset_btn)
 
         # Quit app
-        lbl3 = _label(t("dash.settings.app") + ":", size=13)
-        lbl3.setFrame_(NSMakeRect(20, h - 176, 130, 20))
-        view.addSubview_(lbl3)
+        quit_btn = _button(t("dash.settings.quit_button"), self, b"quitApp:")
+        add_row(2, "dash.settings.app", quit_btn)
 
-        quit_btn = _button(t("dash.settings.quit_button"), self, b"quitApp:", width=200)
-        quit_btn.setFrame_(NSMakeRect(160, h - 180, 200, 26))
-        view.addSubview_(quit_btn)
+        # Website
+        web_btn = _button("1bitstudio.app/data  ↗", self, b"openWebsite:")
+        add_row(3, "dash.settings.website", web_btn)
+
+        # GitHub / source
+        gh_btn = _button("github.com/feonder/1bit-data  ↗", self, b"openGithub:")
+        add_row(4, "dash.settings.source", gh_btn)
 
         # Version
         ver = _label("1 Bit Data · v0.1 · Python + rumps + PyObjC",
@@ -1600,6 +1709,9 @@ class DashboardWindow(NSObject):
     def appBack_(self, _):
         self._app_detail_current = None
         self.apps_title.setStringValue_(t("dash.title.apps"))
+        # Restore title to its list-mode position (left edge of view).
+        f = self.apps_title.frame()
+        self.apps_title.setFrame_(NSMakeRect(20, f.origin.y, 700, f.size.height))
         self.apps_back_btn.setHidden_(True)
         self.apps_full_report_btn.setHidden_(True)
         for v in self.apps_list_views:
@@ -1642,6 +1754,10 @@ class DashboardWindow(NSObject):
     def show_app_detail(self, app):
         self._app_detail_current = app
         self.apps_title.setStringValue_(app)
+        # Shift title to start after the back button so they don't overlap.
+        # Back button is at x=20, width=90 → title starts at x=130.
+        f = self.apps_title.frame()
+        self.apps_title.setFrame_(NSMakeRect(130, f.origin.y, 600, f.size.height))
         self.apps_back_btn.setHidden_(False)
         self.apps_full_report_btn.setHidden_(False)
         for v in self.apps_list_views:
@@ -1724,6 +1840,8 @@ class DashboardWindow(NSObject):
     def destBack_(self, _):
         self._dest_detail_current = None
         self.dest_title.setStringValue_(t("dash.title.dest"))
+        f = self.dest_title.frame()
+        self.dest_title.setFrame_(NSMakeRect(20, f.origin.y, 700, f.size.height))
         self.dest_back_btn.setHidden_(True)
         for v in self.dest_list_views:
             v.setHidden_(False)
@@ -1734,6 +1852,9 @@ class DashboardWindow(NSObject):
     def show_dest_detail(self, remote):
         self._dest_detail_current = remote
         self.dest_title.setStringValue_(remote)
+        # Shift title past the back button to prevent overlap.
+        f = self.dest_title.frame()
+        self.dest_title.setFrame_(NSMakeRect(130, f.origin.y, 600, f.size.height))
         self.dest_back_btn.setHidden_(False)
         for v in self.dest_list_views:
             v.setHidden_(True)
@@ -1812,11 +1933,40 @@ class DashboardWindow(NSObject):
         title = str(sender.titleOfSelectedItem())
         for code, name in LANG_NAMES.items():
             if name == title:
-                i18n.set_lang(code)
+                if i18n.get_lang() == code:
+                    return
+                if not i18n.set_lang(code):
+                    return
+                # Rebuild dashboard content in-place so labels switch instantly.
+                try:
+                    self.reload_for_language()
+                except Exception as e:
+                    print(f"language reload error: {e}", flush=True)
+                # Notify the menu-bar app so its section headers / submenus
+                # switch language at the same time.
+                if on_language_change is not None:
+                    try:
+                        on_language_change(code)
+                    except Exception as e:
+                        print(f"menu-bar refresh error: {e}", flush=True)
                 break
 
     def quitApp_(self, _):
         NSApp.terminate_(None)
+
+    def openWebsite_(self, _):
+        import subprocess
+        try:
+            subprocess.run(["open", "https://1bitstudio.app/data/"])
+        except Exception as e:
+            print(f"open website error: {e}", flush=True)
+
+    def openGithub_(self, _):
+        import subprocess
+        try:
+            subprocess.run(["open", "https://github.com/feonder/1bit-data"])
+        except Exception as e:
+            print(f"open github error: {e}", flush=True)
 
     def resetToday_(self, _):
         state_file = os.path.expanduser("~/.data_monitor_state.json")
@@ -1836,13 +1986,50 @@ class DashboardWindow(NSObject):
         if self.timer is not None:
             self.timer.invalidate()
             self.timer = None
+        try:
+            _open_windows.remove(self)
+        except ValueError:
+            pass
 
 
 # Keep references so windows don't GC
 _open_windows = []
 
+# Optional callback invoked when the user picks a new language from the
+# dashboard's Settings tab. The menu-bar app registers itself here so its
+# menu titles refresh in sync with the dashboard.
+on_language_change = None
+
 
 def open_dashboard():
+    """Show the dashboard window. If one is already open, bring it to the
+    front instead of spawning a duplicate. Also de-miniaturizes if the user
+    had collapsed the window into the Dock."""
+    # Drop any stale references whose window has been closed. A miniaturized
+    # window is still "visible" from AppKit's perspective, so check both.
+    for w in list(_open_windows):
+        try:
+            valid = (w.window is not None
+                     and (w.window.isVisible() or w.window.isMiniaturized()))
+        except Exception:
+            valid = False
+        if not valid:
+            try:
+                _open_windows.remove(w)
+            except ValueError:
+                pass
+
+    if _open_windows:
+        win = _open_windows[0]
+        try:
+            if win.window.isMiniaturized():
+                win.window.deminiaturize_(None)
+            win.window.makeKeyAndOrderFront_(None)
+            NSApp.activateIgnoringOtherApps_(True)
+        except Exception:
+            pass
+        return win
+
     win = DashboardWindow.alloc().init()
     _open_windows.append(win)
     return win

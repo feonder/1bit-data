@@ -3,7 +3,7 @@
 set -euo pipefail
 
 APP_NAME="1 Bit Data"
-VERSION="0.1.0"
+VERSION="0.1.1"
 HERE="$(cd "$(dirname "$0")" && pwd)"
 DIST="$HERE/dist"
 APP="$DIST/$APP_NAME.app"

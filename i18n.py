@@ -543,6 +543,14 @@ T = {
         "tr": "Uygulamayı Kapat", "en": "Quit Application", "es": "Salir",
         "ja": "アプリを終了", "zh": "退出应用", "hi": "एप्लिकेशन बंद करें",
     },
+    "dash.settings.website": {
+        "tr": "Web sitesi", "en": "Website", "es": "Sitio web",
+        "ja": "ウェブサイト", "zh": "网站", "hi": "वेबसाइट",
+    },
+    "dash.settings.source": {
+        "tr": "Kaynak kodu", "en": "Source code", "es": "Código fuente",
+        "ja": "ソースコード", "zh": "源代码", "hi": "स्रोत कोड",
+    },
 
     # ----- Period option names -----
     "period.today": {
