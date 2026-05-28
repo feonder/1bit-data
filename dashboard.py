@@ -1248,7 +1248,7 @@ class DashboardWindow(NSObject):
         add_row(4, "dash.settings.source", gh_btn)
 
         # Version
-        ver = _label("1 Bit Data · v0.1 · Python + rumps + PyObjC",
+        ver = _label("1 Bit Data · v0.1.1 · Python + rumps + PyObjC",
                      size=11, color=FG_DIMMER())
         ver.setFrame_(NSMakeRect(20, 16, 700, 16))
         view.addSubview_(ver)
