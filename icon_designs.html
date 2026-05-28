@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>1 Bit Data — Icon Designs</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    background: #1a1d24;
+    color: #cfd2d7;
+    font-family: "JetBrains Mono", "SF Mono", Menlo, monospace;
+    margin: 0;
+    padding: 40px;
+  }
+  h1 {
+    color: #00ff66;
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0 0 6px;
+  }
+  .subtitle { color: #6a737d; margin-bottom: 32px; font-size: 13px; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 28px;
+    max-width: 1400px;
+  }
+
+  .card {
+    background: #0f1218;
+    border: 1px solid #232830;
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+  }
+  .label {
+    margin-top: 14px;
+    font-size: 12px;
+    color: #00cc55;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .desc {
+    color: #6a737d;
+    font-size: 11px;
+    margin-top: 4px;
+    line-height: 1.4;
+  }
+
+  .icon-wrap {
+    display: inline-block;
+    width: 192px;
+    height: 192px;
+    border-radius: 44px;
+    overflow: hidden;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.45),
+                0 0 0 1px rgba(255,255,255,0.04) inset;
+    position: relative;
+  }
+  .icon-wrap svg { display: block; width: 100%; height: 100%; }
+  /* CRT scanlines overlay */
+  .scan::after {
+    content: "";
+    position: absolute; inset: 0; pointer-events: none;
+    background: repeating-linear-gradient(
+      0deg, transparent 0, transparent 2px,
+      rgba(0,0,0,0.18) 2px, rgba(0,0,0,0.18) 3px);
+    border-radius: inherit;
+  }
+</style>
+</head>
+<body>
+
+<h1>1 Bit Data — App Icon Tasarımları</h1>
+<div class="subtitle">8 farklı yön. Hangi(leri)ni beğendiğini söyle, onu üzerinden çalışalım.</div>
+
+<div class="grid">
+
+  <!-- 1. Sparkline wave -->
+  <div class="card">
+    <div class="icon-wrap scan">
+      <svg viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
+        <rect width="192" height="192" fill="#0a0e0a"/>
+        <path d="M16 130 L36 130 L36 110 L56 110 L56 90 L76 90 L76 70 L96 70 L96 100 L116 100 L116 60 L136 60 L136 80 L156 80 L156 110 L176 110"
+              stroke="#00ff66" stroke-width="6" fill="none" stroke-linecap="square"/>
+        <text x="16" y="40" fill="#5a8a5a" font-family="JetBrains Mono, Menlo, monospace" font-size="14" font-weight="700">1BIT</text>
+        <text x="16" y="170" fill="#ffaa00" font-family="JetBrains Mono, Menlo, monospace" font-size="14" font-weight="700">DATA</text>
+      </svg>
+    </div>
+    <div class="label">01 · Sparkline</div>
+    <div class="desc">Menü çubuğundaki sparkline grafiği büyütülmüş hali</div>
+  </div>
+
+  <!-- 2. Bandwidth bars -->
+  <div class="card">
+    <div class="icon-wrap scan">
+      <svg viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
+        <rect width="192" height="192" fill="#0a0e0a"/>
+        <rect x="22" y="110" width="20" height="60" fill="#00aa44"/>
+        <rect x="52" y="80"  width="20" height="90" fill="#00cc55"/>
+        <rect x="82" y="50"  width="20" height="120" fill="#00ff66"/>
+        <rect x="112" y="90" width="20" height="80" fill="#00cc55"/>
+        <rect x="142" y="40" width="20" height="130" fill="#ffaa00"/>
+        <line x1="14" y1="170" x2="178" y2="170" stroke="#1a5a1a" stroke-width="2"/>
+      </svg>
+    </div>
+    <div class="label">02 · Bars</div>
+    <div class="desc">Klasik throughput çubukları — yeşil + amber peak</div>
+  </div>
+
+  <!-- 3. CRT terminal "1B" -->
+  <div class="card">
+    <div class="icon-wrap scan">
+      <svg viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
+        <rect width="192" height="192" fill="#0a0e0a"/>
+        <rect x="10" y="10" width="172" height="172" fill="none" stroke="#1a5a1a" stroke-width="2"/>
+        <text x="96" y="118" text-anchor="middle"
+              fill="#00ff66" font-family="JetBrains Mono, Menlo, monospace"
+              font-size="90" font-weight="900">1B</text>
+        <circle cx="22" cy="22" r="2.5" fill="#ff4d4d"/>
+        <circle cx="32" cy="22" r="2.5" fill="#ffaa00"/>
+        <circle cx="42" cy="22" r="2.5" fill="#00ff66"/>
+        <text x="180" y="180" text-anchor="end" fill="#5a8a5a" font-family="Menlo, monospace" font-size="10">▮</text>
+      </svg>
+    </div>
+    <div class="label">03 · Terminal</div>
+    <div class="desc">CRT ekran içinde "1B" — pencere kontrolleri detay</div>
+  </div>
+
+  <!-- 4. Network pulse radar -->
+  <div class="card">
+    <div class="icon-wrap scan">
+      <svg viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
+        <rect width="192" height="192" fill="#0a0e0a"/>
+        <circle cx="96" cy="96" r="20"  fill="none" stroke="#00ff66" stroke-width="3"/>
+        <circle cx="96" cy="96" r="40"  fill="none" stroke="#00cc55" stroke-width="2.5"/>
+        <circle cx="96" cy="96" r="60"  fill="none" stroke="#008833" stroke-width="2"/>
+        <circle cx="96" cy="96" r="78"  fill="none" stroke="#1a5a1a" stroke-width="1.5"/>
+        <circle cx="96" cy="96" r="4" fill="#ffaa00"/>
+        <line x1="96" y1="96" x2="158" y2="58" stroke="#ffaa00" stroke-width="2"/>
+        <circle cx="158" cy="58" r="4" fill="#ffaa00"/>
+      </svg>
+    </div>
+    <div class="label">04 · Radar</div>
+    <div class="desc">Konsantrik halkalar — ağ tarama / sinyal</div>
+  </div>
+
+  <!-- 5. Pixel grid + arrows -->
+  <div class="card">
+    <div class="icon-wrap scan">
+      <svg viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
+        <rect width="192" height="192" fill="#0a0e0a"/>
+        <!-- 1-bit pixel art network nodes -->
+        <g fill="#00ff66">
+          <rect x="32" y="32" width="16" height="16"/>
+          <rect x="88" y="32" width="16" height="16"/>
+          <rect x="144" y="32" width="16" height="16"/>
+          <rect x="60" y="88" width="16" height="16"/>
+          <rect x="116" y="88" width="16" height="16"/>
+          <rect x="32" y="144" width="16" height="16"/>
+          <rect x="88" y="144" width="16" height="16"/>
+          <rect x="144" y="144" width="16" height="16"/>
+        </g>
+        <!-- Connections -->
+        <g stroke="#5a8a5a" stroke-width="3">
+          <line x1="48" y1="40"  x2="88" y2="40"/>
+          <line x1="104" y1="40" x2="144" y2="40"/>
+          <line x1="40" y1="48"  x2="60" y2="88"/>
+          <line x1="96" y1="48"  x2="68" y2="88"/>
+          <line x1="96" y1="48"  x2="124" y2="88"/>
+          <line x1="152" y1="48" x2="124" y2="88"/>
+          <line x1="60" y1="104" x2="40" y2="144"/>
+          <line x1="68" y1="104" x2="96" y2="144"/>
+          <line x1="124" y1="104" x2="96" y2="144"/>
+          <line x1="132" y1="104" x2="152" y2="144"/>
+        </g>
+      </svg>
+    </div>
+    <div class="label">05 · Network Nodes</div>
+    <div class="desc">1-bit pixel art ağ düğümleri — fully geometric</div>
+  </div>
+
+  <!-- 6. Brackets [1B] -->
+  <div class="card">
+    <div class="icon-wrap scan">
+      <svg viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
+        <rect width="192" height="192" fill="#0a0e0a"/>
+        <text x="96" y="118" text-anchor="middle"
+              fill="#00ff66" font-family="JetBrains Mono, Menlo, monospace"
+              font-size="62" font-weight="900">[1B]</text>
+        <text x="96" y="160" text-anchor="middle"
+              fill="#ffaa00" font-family="JetBrains Mono, Menlo, monospace"
+              font-size="14" font-weight="700" letter-spacing="3">DATA</text>
+      </svg>
+    </div>
+    <div class="label">06 · Bracket</div>
+    <div class="desc">Terminal markası — [1B] DATA</div>
+  </div>
+
+  <!-- 7. Arrow stack ↓↑ -->
+  <div class="card">
+    <div class="icon-wrap scan">
+      <svg viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
+        <rect width="192" height="192" fill="#0a0e0a"/>
+        <!-- Down arrow (teal/cyan) -->
+        <g stroke="#39d0d8" stroke-width="10" stroke-linecap="square" fill="none">
+          <line x1="58" y1="38"  x2="58" y2="118"/>
+          <polyline points="30,90 58,118 86,90"/>
+        </g>
+        <!-- Up arrow (pink) -->
+        <g stroke="#ff79c6" stroke-width="10" stroke-linecap="square" fill="none">
+          <line x1="134" y1="154" x2="134" y2="74"/>
+          <polyline points="106,102 134,74 162,102"/>
+        </g>
+      </svg>
+    </div>
+    <div class="label">07 · Arrows</div>
+    <div class="desc">↓↑ klasik DL/UL ikonu — cyan + pink</div>
+  </div>
+
+  <!-- 8. ASCII data block -->
+  <div class="card">
+    <div class="icon-wrap scan">
+      <svg viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
+        <rect width="192" height="192" fill="#0a0e0a"/>
+        <g font-family="JetBrains Mono, Menlo, monospace" font-size="18" font-weight="700">
+          <text x="16" y="36" fill="#5a8a5a">01000101</text>
+          <text x="16" y="64" fill="#00ff66">01001110</text>
+          <text x="16" y="92" fill="#ffaa00" font-size="22">▮ 1BIT</text>
+          <text x="16" y="120" fill="#00ff66">01000100</text>
+          <text x="16" y="148" fill="#5a8a5a">01000001</text>
+          <text x="16" y="176" fill="#5a8a5a">01010100</text>
+        </g>
+      </svg>
+    </div>
+    <div class="label">08 · Binary Stream</div>
+    <div class="desc">Binary akışı + ortada vurgu satırı</div>
+  </div>
+
+  <!-- 9. Bracket + sparkline combined -->
+  <div class="card">
+    <div class="icon-wrap scan">
+      <svg viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
+        <rect width="192" height="192" fill="#0a0e0a"/>
+        <text x="22" y="115" fill="#00ff66" font-family="JetBrains Mono, Menlo, monospace" font-size="50" font-weight="900">[</text>
+        <text x="156" y="115" fill="#00ff66" font-family="JetBrains Mono, Menlo, monospace" font-size="50" font-weight="900">]</text>
+        <path d="M50 110 L62 110 L62 95 L74 95 L74 80 L86 80 L86 95 L98 95 L98 75 L110 75 L110 90 L122 90 L122 105 L134 105"
+              stroke="#ffaa00" stroke-width="5" fill="none" stroke-linecap="square"/>
+        <text x="96" y="160" text-anchor="middle" fill="#5a8a5a" font-family="JetBrains Mono, Menlo, monospace" font-size="11" font-weight="700" letter-spacing="2">1 BIT DATA</text>
+      </svg>
+    </div>
+    <div class="label">09 · Bracket + Wave</div>
+    <div class="desc">[ … ] içinde sparkline — terminal estetiği</div>
+  </div>
+
+  <!-- 10. Big "▮" with data trickle -->
+  <div class="card">
+    <div class="icon-wrap scan">
+      <svg viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
+        <rect width="192" height="192" fill="#0a0e0a"/>
+        <!-- Big terminal block cursor -->
+        <rect x="40" y="40" width="40" height="112" fill="#00ff66"/>
+        <!-- Trailing data dots -->
+        <g fill="#ffaa00">
+          <rect x="92"  y="86" width="14" height="20"/>
+          <rect x="116" y="86" width="14" height="20"/>
+          <rect x="140" y="86" width="14" height="20"/>
+        </g>
+        <text x="96" y="180" text-anchor="middle" fill="#5a8a5a" font-family="JetBrains Mono, Menlo, monospace" font-size="11" font-weight="700" letter-spacing="2">1 BIT DATA</text>
+      </svg>
+    </div>
+    <div class="label">10 · Cursor</div>
+    <div class="desc">Terminal cursor + veri akışı dots</div>
+  </div>
+
+</div>
+
+<div style="margin-top:48px;padding:16px;border-left:3px solid #00ff66;background:#0f1218;font-size:13px;color:#cfd2d7;line-height:1.5;">
+  <strong style="color:#00ff66">Beğendiklerini seç</strong> (örn. "5 ve 9", veya "3 ama amber rengi de kullan"). Sonra seçileni:
+  <ul style="margin:8px 0 0 16px;color:#a0a4ab">
+    <li>1024×1024 PNG'ye export ederim</li>
+    <li>iconutil ile .icns formatına dönüştürürüm (macOS standardı)</li>
+    <li>py2app build script'ine ekler, app bundle'a yerleştiririm</li>
+  </ul>
+</div>
+
+</body>
+</html>

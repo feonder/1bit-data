@@ -1,0 +1,25 @@
+# Build artifacts
+build/
+dist/
+
+# py2app intermediate
+*.egg-info/
+__pycache__/
+*.pyc
+*.pyo
+
+# Icon intermediates (only AppIcon.icns checked in)
+assets/AppIcon.iconset/
+assets/*.png
+
+# macOS
+.DS_Store
+Icon?
+
+# IDE
+.vscode/
+.idea/
+
+# Local user data (never committed)
+.data_monitor*.json
+.data_monitor.db

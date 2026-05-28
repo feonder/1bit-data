@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <!-- Background: rounded square (macOS app icon shape) -->
+  <defs>
+    <clipPath id="appMask">
+      <rect x="0" y="0" width="1024" height="1024" rx="229" ry="229"/>
+    </clipPath>
+    <filter id="scanlines" x="0" y="0" width="100%" height="100%">
+      <feFlood flood-color="rgba(0,0,0,0.18)" result="flood"/>
+      <feComposite in="flood" in2="SourceGraphic" operator="in" result="masked"/>
+      <feMerge>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <pattern id="scan" x="0" y="0" width="1" height="14" patternUnits="userSpaceOnUse">
+      <rect x="0" y="0" width="1024" height="6" fill="rgba(0,0,0,0)"/>
+      <rect x="0" y="6" width="1024" height="2" fill="rgba(0,0,0,0.22)"/>
+    </pattern>
+  </defs>
+
+  <g clip-path="url(#appMask)">
+    <!-- Background -->
+    <rect x="0" y="0" width="1024" height="1024" fill="#0a0e0a"/>
+
+    <!-- Binary stream content: 6 rows spelling visual data -->
+    <!-- Mono font; large size for icon scale -->
+    <g font-family="Menlo, 'JetBrains Mono', 'Courier New', monospace"
+       font-weight="700" font-size="118" letter-spacing="-2">
+      <text x="86" y="180"  fill="#5a8a5a">01001110</text>
+      <text x="86" y="320"  fill="#00ff66">01000101</text>
+      <text x="86" y="540"  fill="#ffaa00" font-size="138">▮ 1BIT</text>
+      <text x="86" y="700"  fill="#00ff66">01010100</text>
+      <text x="86" y="840"  fill="#00ff66">01010111</text>
+      <text x="86" y="970"  fill="#5a8a5a">01001111</text>
+    </g>
+
+    <!-- Subtle CRT scanlines overlay -->
+    <rect x="0" y="0" width="1024" height="1024" fill="url(#scan)"/>
+
+    <!-- Subtle inner highlight (top edge) -->
+    <rect x="0" y="0" width="1024" height="2" fill="rgba(255,255,255,0.08)"/>
+  </g>
+</svg>

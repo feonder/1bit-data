@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 440" width="720" height="440">
+  <defs>
+    <pattern id="scan" x="0" y="0" width="1" height="4" patternUnits="userSpaceOnUse">
+      <rect x="0" y="0" width="720" height="2" fill="rgba(0,0,0,0)"/>
+      <rect x="0" y="2" width="720" height="1" fill="rgba(0,0,0,0.22)"/>
+    </pattern>
+  </defs>
+
+  <!-- BG -->
+  <rect width="720" height="440" fill="#0a0e0a"/>
+
+  <!-- Subtle inner frame -->
+  <rect x="14" y="14" width="692" height="412" fill="none" stroke="#1a5a1a" stroke-width="1"/>
+
+  <!-- Title -->
+  <text x="360" y="56" text-anchor="middle"
+        fill="#00ff66" font-family="Menlo, 'JetBrains Mono', monospace"
+        font-size="22" font-weight="700" letter-spacing="6">[ 1 BIT DATA ]</text>
+  <text x="360" y="80" text-anchor="middle"
+        fill="#5a8a5a" font-family="Menlo, monospace" font-size="11"
+        letter-spacing="3">v0.1.0  ·  KURULUM</text>
+
+  <!-- Drag instruction (between icons) -->
+  <g transform="translate(360, 240)">
+    <!-- Arrow shaft + head, amber -->
+    <line x1="-90" y1="0" x2="80" y2="0" stroke="#ffaa00" stroke-width="6" stroke-linecap="square"/>
+    <polygon points="80,-18 110,0 80,18" fill="#ffaa00"/>
+  </g>
+
+  <!-- Underline labels (will sit roughly below the actual file icons) -->
+  <text x="180" y="370" text-anchor="middle"
+        fill="#5a8a5a" font-family="Menlo, monospace" font-size="11"
+        letter-spacing="2">SÜRÜKLE</text>
+  <text x="540" y="370" text-anchor="middle"
+        fill="#5a8a5a" font-family="Menlo, monospace" font-size="11"
+        letter-spacing="2">UYGULAMALAR'A BIRAK</text>
+
+  <!-- Footer hint -->
+  <text x="360" y="408" text-anchor="middle"
+        fill="#1a5a1a" font-family="Menlo, monospace" font-size="10"
+        letter-spacing="2">DEVELOPER ID NOTARIZED · APPLE TRUSTED</text>
+
+  <!-- Scanline overlay -->
+  <rect width="720" height="440" fill="url(#scan)"/>
+</svg>
